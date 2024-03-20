@@ -1,0 +1,9 @@
+{
+	"name": "projectworkadf",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "f9fbabb5-edec-4eda-a137-b380ca3baeb5",
+		"tenantId": "2a654a1b-ab22-4ca1-b5b1-59ca538366c2"
+	}
+}

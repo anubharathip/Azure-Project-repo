@@ -1,0 +1,97 @@
+{
+	"name": "dataflowproject",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Json2",
+						"type": "DatasetReference"
+					},
+					"name": "sourceemployee"
+				},
+				{
+					"dataset": {
+						"referenceName": "Json3",
+						"type": "DatasetReference"
+					},
+					"name": "sourcedepartment"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedText1",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "join1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          EMPLOYEE_ID as integer,",
+				"          FIRST_NAME as string,",
+				"          LAST_NAME as string,",
+				"          EMAIL as string,",
+				"          PHONE_NUMBER as string,",
+				"          HIRE_DATE as string,",
+				"          JOB_ID as string,",
+				"          SALARY as integer,",
+				"          COMMISSION_PCT as integer,",
+				"          MANAGER_ID as integer,",
+				"          DEPARTMENT_ID as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'arrayOfDocuments') ~> sourceemployee",
+				"source(output(",
+				"          DEPARTMENT_ID as integer,",
+				"          DEPARTMENT_NAME as string,",
+				"          MANAGER_ID as integer,",
+				"          LOCATION_ID as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'arrayOfDocuments') ~> sourcedepartment",
+				"sourceemployee derive(EMPLOYEE_ID = toInteger(EMPLOYEE_ID),",
+				"          FIRST_NAME = toString(FIRST_NAME),",
+				"          LAST_NAME = toString(LAST_NAME),",
+				"          EMAIL = toString(EMAIL),",
+				"          PHONE_NUMBER = toInteger(PHONE_NUMBER),",
+				"          HIRE_DATE = toString(HIRE_DATE),",
+				"          JOB_ID = toString(JOB_ID),",
+				"          SALARY = toInteger(SALARY),",
+				"          COMMISSION_PCT = toString(COMMISSION_PCT),",
+				"          MANAGER_ID = toString(MANAGER_ID),",
+				"          DEPARTMENT_ID = toInteger(DEPARTMENT_ID)) ~> derivedColumn1",
+				"sourcedepartment derive(DEPARTMENT_ID = toInteger(DEPARTMENT_ID),",
+				"          DEPARTMENT_NAME = toString(DEPARTMENT_NAME),",
+				"          MANAGER_ID = toInteger(MANAGER_ID),",
+				"          LOCATION_ID = toString(LOCATION_ID)) ~> derivedColumn2",
+				"derivedColumn1, derivedColumn2 join(derivedColumn1@DEPARTMENT_ID == derivedColumn2@DEPARTMENT_ID,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}
